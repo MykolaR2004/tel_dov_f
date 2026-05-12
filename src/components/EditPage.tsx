@@ -328,7 +328,7 @@ export default function EditPage() {
                         </div>
                     </div>
 
-                    <table className="w-full table-fixed border border-gray-300">
+                    <table className="my-table">
                         <thead>
                         <tr>
                             {columns.map(col => (

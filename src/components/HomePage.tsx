@@ -85,7 +85,7 @@ export default function HomePage() {
             <div className="flex justify-center">
                 <div className="w-full max-w-7xl overflow-x-auto">
 
-                    <table className="w-full table-fixed border border-gray-300 rounded-lg overflow-hidden shadow-sm">
+                    <table className="my-table">
 
                         {/* Едина шапка таблиці */}
                         <thead>
@@ -102,12 +102,12 @@ export default function HomePage() {
                         </tr>
                         </thead>
 
-                        <tbody className="px-4 py-2 border-r border-gray-800 bg-white divide-y divide-gray-800">
+                        <tbody className="px-4 py-2 bg-white divide-y divide-gray-800">
                         {Object.entries(groupedRows).map(([department, depData]) => (
                             <React.Fragment key={department}>
 
                                 {/* Заголовок відділу */}
-                                <tr className="bg-gray-200">
+                                <tr >
                                     <td colSpan={columns.length}
                                         className="px-4 py-3 font-bold text-left">
                                         {depData.cod_dep} - {department}
@@ -130,7 +130,7 @@ export default function HomePage() {
                                         {subDepData.employees.map((employee) => (
                                             <tr
                                                 key={employee.pib}
-                                                className="hover:bg-blue-100 transition-colors"
+                                                // className="hover:bg-blue-100 transition-colors"
                                             >
                                                 {columns.map((col) => (
                                                     <td

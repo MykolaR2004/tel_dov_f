@@ -362,11 +362,9 @@ export default function StructurePage() {
             return depCompare;
         }
 
-        // Если коды отделов равны (редко), сортируем по имени
         return a.department.name.localeCompare(b.department.name, 'uk');
     });
 
-// 5. Сортировка подразделений внутри каждого отдела (после фильтрации)
     displayGroups.forEach((group: any) => {
         group.subDepartments.sort((subA: any, subB: any) => {
             const codeA = (subA.cod_sub_dep || "").trim();
@@ -374,26 +372,6 @@ export default function StructurePage() {
             return codeA.localeCompare(codeB, 'uk', { numeric: true });
         });
     });
-
-    // // Фильтрация: если showInactive === false, показываем только активные
-    // const filteredGroupedRows = Object.fromEntries(
-    //     Object.entries(groupedRows).filter(([_, group]: any) => {
-    //         const dep = group.department;
-    //
-    //         // Если включен показ неактивных — пропускаем всё
-    //         if (showInactive) return true;
-    //
-    //         // Иначе: показываем отдел, только если он активен
-    //         if (dep.is_actual !== 1) return false;
-    //
-    //         // Фильтруем подразделения внутри активного отдела
-    //         group.subDepartments = group.subDepartments.filter(
-    //             (sub: any) => sub.sub_actual === 1
-    //         );
-    //
-    //         return true;
-    //     })
-    // );
 
     return (
         <div className="pt-16 px-6">
@@ -503,29 +481,29 @@ export default function StructurePage() {
 
             <div className="overflow-x-auto border border-gray-300 rounded">
 
-                <table className="w-full table-fixed border-collapse">
+                <table className="my-table">
 
                     <thead className="bg-gray-100">
 
                     <tr>
 
-                        <th className="w-[100px] border px-3 py-2">
+                        <th className="w-[100px] ">
                             Код
                         </th>
 
-                        <th className="w-[420px] border px-3 py-2">
+                        <th className="w-[420px] ">
                             Назва
                         </th>
 
-                        <th className="w-[120px] border px-3 py-2">
+                        <th className="w-[120px] ">
                             Активний
                         </th>
 
-                        <th className="w-[120px] border px-3 py-2">
+                        <th className="w-[120px] ">
                             Спец.
                         </th>
 
-                        <th className="w-[140px] border px-3 py-2">
+                        <th className="w-[140px] ">
                             Дії
                         </th>
 
@@ -552,7 +530,7 @@ export default function StructurePage() {
                                     {isEditing ? (
                                         <>
 
-                                            <td className="border px-2 py-2">
+                                            <td>
 
                                                 <input
                                                     className="w-full border rounded px-2 py-1"
@@ -567,7 +545,7 @@ export default function StructurePage() {
 
                                             </td>
 
-                                            <td className="border px-2 py-2">
+                                            <td>
 
                                                 <input
                                                     className="w-full border rounded px-2 py-1"
@@ -582,7 +560,7 @@ export default function StructurePage() {
 
                                             </td>
 
-                                            <td className="border px-2 py-2 text-center">
+                                            <td className=" text-center">
 
                                                 <input
                                                     type="checkbox"
@@ -597,7 +575,7 @@ export default function StructurePage() {
 
                                             </td>
 
-                                            <td className="border px-2 py-2 text-center">
+                                            <td className=" text-center">
 
                                                 <input
                                                     type="checkbox"
@@ -612,7 +590,7 @@ export default function StructurePage() {
 
                                             </td>
 
-                                            <td className="border px-2 py-2 text-center">
+                                            <td className=" text-center">
 
                                                 <button
                                                     onClick={() => saveDepartmentEdit(dep.id)}
@@ -635,23 +613,23 @@ export default function StructurePage() {
                                     ) : (
                                         <>
 
-                                            <td className="border px-3 py-3 font-bold">
+                                            <td className="font-bold">
                                                 {dep.cod_dep}
                                             </td>
 
-                                            <td className="border px-3 py-3 font-bold break-words whitespace-normal">
+                                            <td className="font-bold break-words whitespace-normal">
                                                 {dep.name}
                                             </td>
 
-                                            <td className="border px-3 py-3 text-center">
+                                            <td className="text-center">
                                                 {dep.is_actual ? "Так" : "Ні"}
                                             </td>
 
-                                            <td className="border px-3 py-3 text-center">
+                                            <td className="text-center">
                                                 {dep.is_spec ? "Так" : "Ні"}
                                             </td>
 
-                                            <td className="border px-3 py-3 text-center">
+                                            <td className="text-center">
 
                                                 <button
                                                     onClick={() => startDepartmentEdit(dep)}
@@ -688,7 +666,7 @@ export default function StructurePage() {
                                 {/* === ФОРМА ДОБАВЛЕНИЯ ПОДРАЗДЕЛЕНИЯ === */}
                                 {addingSubDepFor === dep.id && (
                                     <tr className="bg-green-50">
-                                        <td className="border px-2 py-2">
+                                        <td className="">
                                             <input
                                                 className="w-full border rounded px-2 py-1"
                                                 value={newSubDepData.cod_dep}
@@ -696,7 +674,7 @@ export default function StructurePage() {
                                                 placeholder="Код"
                                             />
                                         </td>
-                                        <td className="border px-2 py-2">
+                                        <td className="">
                                             <input
                                                 className="w-full border rounded px-2 py-1"
                                                 value={newSubDepData.name}
@@ -704,15 +682,15 @@ export default function StructurePage() {
                                                 placeholder="Назва підрозділу"
                                             />
                                         </td>
-                                        <td className="border px-2 py-2 text-center">
+                                        <td className=" text-center">
                                             <input
                                                 type="checkbox"
                                                 checked={newSubDepData.is_actual === 1}
                                                 onChange={e => setNewSubDepData(prev => ({ ...prev, is_actual: e.target.checked ? 1 : 0 }))}
                                             />
                                         </td>
-                                        <td className="border px-2 py-2">—</td>
-                                        <td className="border px-2 py-2 text-center">
+                                        <td className="">—</td>
+                                        <td className=" text-center">
                                             <button
                                                 onClick={() => addSubDepartment(dep.id)}
                                                 className="mr-1"
@@ -748,7 +726,7 @@ export default function StructurePage() {
                                             {isSubEditing ? (
                                                 <>
 
-                                                    <td className="border px-2 py-2">
+                                                    <td className="">
 
                                                         <input
                                                             className="w-full border rounded px-2 py-1"
@@ -763,7 +741,7 @@ export default function StructurePage() {
 
                                                     </td>
 
-                                                    <td className="border px-2 py-2 pl-6">
+                                                    <td className=" pl-6">
 
                                                         <input
                                                             className="w-full border rounded px-2 py-1"
@@ -778,7 +756,7 @@ export default function StructurePage() {
 
                                                     </td>
 
-                                                    <td className="border px-2 py-2 text-center">
+                                                    <td className=" text-center">
 
                                                         <input
                                                             type="checkbox"
@@ -793,11 +771,11 @@ export default function StructurePage() {
 
                                                     </td>
 
-                                                    <td className="border px-2 py-2 text-center">
+                                                    <td className=" text-center">
                                                         —
                                                     </td>
 
-                                                    <td className="border px-2 py-2 text-center">
+                                                    <td className=" text-center">
 
                                                         <button
                                                             onClick={() => saveSubDepartmentEdit(sub.id)}
@@ -830,23 +808,23 @@ export default function StructurePage() {
                                             ) : (
                                                 <>
 
-                                                    <td className="border px-3 py-2 text-center">
+                                                    <td className=" text-center">
                                                         {sub.cod_sub_dep}
                                                     </td>
 
-                                                    <td className="border px-3 py-2 pl-10 break-words whitespace-normal">
+                                                    <td className=" pl-10 break-words whitespace-normal">
                                                         {sub.name_sub_dep}
                                                     </td>
 
-                                                    <td className="border px-3 py-2 text-center">
+                                                    <td className=" text-center">
                                                         {sub.sub_actual ? "Так" : "Ні"}
                                                     </td>
 
-                                                    <td className="border px-3 py-2">
+                                                    <td className="">
                                                         —
                                                     </td>
 
-                                                    <td className="border px-3 py-2 text-center">
+                                                    <td className=" text-center">
 
                                                         <button
                                                             onClick={() => startSubDepartmentEdit(sub)}
