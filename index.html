@@ -1,14 +1,15 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml"/>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <link rel="icon" type="image/png" href="/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>tel_dov_f</title>
+    <title>Телефоний довідник ГУ ДПС у Миколаївській області</title>
   </head>
   <body>
     <div id="app"></div>
-    <h2>Надпись в хтмл</h2>
-    <script type="module" src="/src/main.tsx"></script>
+    <script type="module" src="src/main.tsx"></script>
   </body>
 </html>

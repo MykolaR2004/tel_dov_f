@@ -7,11 +7,16 @@
     --my-red: var(--color-red-700);
     --my-black: #191516;
     --my-white: #F2EFEA;
+    --font-size-base: 16px;
 }
 
-body {
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
     font-family: 'Montserrat', serif;
     color: var(--my-black);
+    font-size: var(--font-size-base);
 }
 
 @layer components {
@@ -31,9 +36,9 @@ body {
         @apply animate-spin rounded-full h-8 w-8 border-b-2 border-(--my-blue);
     }
 
-    /* === Унифицированные стили для таблиц === */
     .my-table {
-        @apply w-full border-collapse border-0; /* Убираем внешнюю рамку */
+        @apply w-full border-collapse border-0;
+        table-layout: fixed;
         border-spacing: 0;
     }
 
@@ -42,51 +47,61 @@ body {
     }
 
     .my-table th {
-        @apply px-4 py-3 font-semibold text-sm text-gray-700 text-left;
+        @apply px-4 py-3 font-semibold text-black text-center border-b border-gray-200;
+        font-size: 16px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .my-table td {
+        @apply px-4 py-3 border-b border-b-gray-200 text-center;
+        font-size: 16px;
+        font-weight: 500;
+        color: var(--my-black);
+    }
+
+    .my-table .table-dept {
+        @apply bg-gray-200 py-4 text-center border-0;
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--my-black);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        border-bottom: 2px solid var(--my-blue);
+    }
+
+    .my-table .table-subdept {
+        @apply bg-gray-100 py-3 text-center border-0;
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--my-blue);
+        font-style: italic;
+        border-bottom: 1px solid #e5e7eb;
     }
 
     .my-table tbody tr {
         @apply transition-colors duration-150;
     }
 
-    /* Зебра: чередование белого и светло-серого */
-    .my-table tbody tr:nth-child(odd) {
+    .my-table tbody tr:not(.table-dept):not(.table-subdept):nth-child(odd) {
         @apply bg-white;
     }
-    .my-table tbody tr:nth-child(even) {
+    .my-table tbody tr:not(.table-dept):not(.table-subdept):nth-child(even) {
         @apply bg-gray-50;
     }
 
-    /* Hover-эффект для строк */
-    .my-table tbody tr:hover {
-        @apply bg-blue-50/60;
+    .my-table tbody tr:not(.table-dept):not(.table-subdept):hover {
+        @apply bg-blue-100/60 shadow-md;
     }
 
-    .my-table td {
-        @apply px-4 py-3 text-sm border-b border-gray-100; /* Тонкая серая линия вместо чёрной рамки */
-    }
-
-    /* Убираем нижнюю границу у последней строки */
     .my-table tbody tr:last-child td {
         @apply border-b-0;
-    }
-
-    /* Исключаем кастомные строки (заголовки отделов/подразделений) из зебры */
-    .my-table tbody tr[class*="bg-gray-"]:nth-child(odd),
-    .my-table tbody tr[class*="bg-gray-"]:nth-child(even) {
-        @apply bg-inherit; /* Сохраняет ваш явный bg-gray-200 / bg-gray-100 */
     }
 }
 
 @layer utilities {
-    .my-flex {
-        @apply flex items-center justify-center;
-    }
-
-    .my-hover {
-        @apply transition hover:scale-102;
-    }
-
+    .my-flex { @apply flex items-center justify-center; }
+    .my-hover { @apply transition hover:scale-102; }
     .my-bounce {
         transition-timing-function: linear(
                 0, 0.004, 0.016, 0.035, 0.063, 0.098, 0.141 13.6%, 0.25, 0.391, 0.563, 0.765,
@@ -95,71 +110,22 @@ body {
                 0.973, 1, 0.988, 0.984, 0.988, 1
         );
     }
-
-    .my-backdrop {
-        backdrop-filter: blur(8px) brightness(0.8);
-    }
+    .my-backdrop { backdrop-filter: blur(8px) brightness(0.8); }
 }
 
-/* === React Select (без изменений) === */
-.edit-select__option {
-    white-space: normal !important;
-    word-break: break-word !important;
-    hyphens: auto;
-    line-height: 1.4;
-    padding: 0.5rem 0.75rem;
-}
+.overflow-auto::-webkit-scrollbar { width: 8px; height: 8px; }
+.overflow-auto::-webkit-scrollbar-track { background: #f1f1f1; }
+.overflow-auto::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
+.overflow-auto::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
 
-.edit-select__option--is-focused {
-    background-color: rgb(14 113 185 / 0.1);
-    color: rgb(14, 113, 185);
-}
-
-.edit-select__option--is-selected {
-    background-color: rgb(37 169 114 / 0.1);
-    color: rgb(37, 169, 114);
-    font-weight: 600;
-}
-
-.edit-select__menu {
-    z-index: 9999 !important;
-    border: 1px solid #e5e7eb;
-    border-radius: 0.375rem;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    overflow-y: auto;
-}
-
-.edit-select__menu {
-    overflow: visible !important;
-}
-
-.edit-select__menu-list {
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
-}
-
-.edit-select__control {
-    border: 1px solid #e5e7eb;
-    border-radius: 0.375rem;
-    box-shadow: none !important;
-    font-family: 'Montserrat', serif;
-}
-
-.edit-select__control--is-focused {
-    border-color: rgb(14, 113, 185) !important;
-    box-shadow: 0 0 0 2px rgb(14 113 185 / 0.2) !important;
-}
-
-.edit-select__single-value {
-    white-space: nowrap !important;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.edit-select__dropdown-indicator {
-    padding: 0.25rem !important;
-}
-
-.edit-select__indicator-separator {
-    display: none;
-}
+.edit-select__option { white-space: normal !important; word-break: break-word !important; hyphens: auto; line-height: 1.4; padding: 0.5rem 0.75rem; }
+.edit-select__option--is-focused { background-color: rgb(14 113 185 / 0.1); color: rgb(14, 113, 185); }
+.edit-select__option--is-selected { background-color: rgb(37 169 114 / 0.1); color: rgb(37, 169, 114); font-weight: 600; }
+.edit-select__menu { z-index: 9999 !important; border: 1px solid #e5e7eb; border-radius: 0.375rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); overflow-y: auto; }
+.edit-select__menu { overflow: visible !important; }
+.edit-select__menu-list { overflow-y: auto !important; overflow-x: hidden !important; }
+.edit-select__control { border: 1px solid #e5e7eb; border-radius: 0.375rem; box-shadow: none !important; font-family: 'Montserrat', serif; }
+.edit-select__control--is-focused { border-color: rgb(14, 113, 185) !important; box-shadow: 0 0 0 2px rgb(14 113 185 / 0.2) !important; }
+.edit-select__single-value { white-space: nowrap !important; overflow: hidden; text-overflow: ellipsis; }
+.edit-select__dropdown-indicator { padding: 0.25rem !important; }
+.edit-select__indicator-separator { display: none; }

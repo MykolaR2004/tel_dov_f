@@ -29,6 +29,7 @@ export default function HomePage() {
             })
             .then(data => setRows(data))
             .catch(err => console.error(err));
+
     }, []);
 
     const groupedRows = rows.reduce((acc, item) => {
@@ -81,20 +82,20 @@ export default function HomePage() {
     ];
 
     return (
-        <div className="pt-16 px-6">
+        <div className="pt-0 px-6">
             <div className="flex justify-center">
-                <div className="w-full max-w-7xl overflow-x-auto">
-
-                    <table className="my-table">
-
-                        {/* Едина шапка таблиці */}
-                        <thead>
+                <div
+                    className="w-full max-w-7xl overflow-auto rounded-xl border border-gray-200 bg-white shadow-sm"
+                    style={{ maxHeight: 'calc(100vh - 100px)' }} // Высота = экран минус хедер + отступы
+                >
+                    <table className="my-table w-full">
+                        <thead className="sticky top-0 z-30 bg-gray-50 border-b-2 border-gray-300 shadow-sm">
                         <tr>
                             {columns.map((col) => (
                                 <th
                                     key={col.key}
                                     style={{ width: col.width }}
-                                    className="px-4 py-3 border-b border-gray-300 text-center"
+                                    className="px-4 py-3 text-center font-semibold whitespace-nowrap"
                                 >
                                     {col.header}
                                 </th>
@@ -102,42 +103,27 @@ export default function HomePage() {
                         </tr>
                         </thead>
 
-                        <tbody className="px-4 py-2 bg-white divide-y divide-gray-800">
+                        <tbody>
                         {Object.entries(groupedRows).map(([department, depData]) => (
                             <React.Fragment key={department}>
-
-                                {/* Заголовок відділу */}
-                                <tr >
-                                    <td colSpan={columns.length}
-                                        className="px-4 py-3 font-bold text-left">
+                                <tr>
+                                    <td colSpan={columns.length} className="table-dept">
                                         {depData.cod_dep} - {department}
                                     </td>
                                 </tr>
-
                                 {Object.entries(depData.subDeps).map(([key, subDepData]) => (
                                     <React.Fragment key={key}>
-
-                                        {/* Заголовок підрозділу */}
                                         {subDepData.sub_dep && (
-                                            <tr className="bg-gray-100">
-                                                <td colSpan={columns.length} className="px-4 py-2 font-semibold text-left">
+                                            <tr>
+                                                <td colSpan={columns.length} className="table-subdept">
                                                     {subDepData.employees[0].cod_dep} — {subDepData.sub_dep}
                                                 </td>
                                             </tr>
                                         )}
-
-                                        {/* Сотрудники */}
                                         {subDepData.employees.map((employee) => (
-                                            <tr
-                                                key={employee.pib}
-                                                // className="hover:bg-blue-100 transition-colors"
-                                            >
+                                            <tr key={employee.pib}>
                                                 {columns.map((col) => (
-                                                    <td
-                                                        key={col.key}
-                                                        style={{ width: col.width }}
-                                                        className="px-4 py-2 text-center"
-                                                    >
+                                                    <td key={col.key} style={{ width: col.width }}>
                                                         {employee[col.key]}
                                                     </td>
                                                 ))}
@@ -153,5 +139,4 @@ export default function HomePage() {
             </div>
         </div>
     );
-
 }

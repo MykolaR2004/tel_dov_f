@@ -1,4 +1,5 @@
 import { useEffect, useState, Fragment } from "react";
+import AuthGuard from "./AuthGuard";
 
 type StructureRow = {
     id: number;
@@ -46,7 +47,6 @@ export default function StructurePage() {
 
     const [showInactive, setShowInactive] = useState(false);
 
-    // Для формы добавления отдела
     const [showAddDepartmentForm, setShowAddDepartmentForm] = useState(false);
     const [newDepartmentData, setNewDepartmentData] = useState({
         cod_dep: "",
@@ -55,13 +55,12 @@ export default function StructurePage() {
         is_spec: 0
     });
 
-// Для формы добавления подразделения (открывается для конкретного отдела)
     const [addingSubDepFor, setAddingSubDepFor] = useState<number | null>(null);
     const [newSubDepData, setNewSubDepData] = useState({
         cod_dep: "",
         name: "",
         is_actual: 1,
-        id_main: 0  // ID родительского отдела
+        id_main: 0
     });
 
     useEffect(() => {
@@ -69,7 +68,6 @@ export default function StructurePage() {
     }, []);
 
 
-// Добавление отдела
     const addDepartment = async () => {
         if (!newDepartmentData.cod_dep.trim() || !newDepartmentData.name.trim()) {
             alert("Код та назва відділу обов'язкові");
@@ -80,7 +78,8 @@ export default function StructurePage() {
             const res = await fetch("/api/contacts/structure/department", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(newDepartmentData)
+                body: JSON.stringify(newDepartmentData),
+                credentials: "include"
             });
 
             if (!res.ok) throw new Error(await res.text());
@@ -94,7 +93,6 @@ export default function StructurePage() {
         }
     };
 
-// Добавление подразделения
     const addSubDepartment = async (departmentId: number) => {
         if (!newSubDepData.cod_dep.trim() || !newSubDepData.name.trim()) {
             alert("Код та назва підрозділу обов'язкові");
@@ -105,7 +103,8 @@ export default function StructurePage() {
             const res = await fetch("/api/contacts/structure/subdepartment", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ ...newSubDepData, id_main: departmentId })
+                body: JSON.stringify({ ...newSubDepData, id_main: departmentId }),
+                credentials: "include"
             });
 
             if (!res.ok) throw new Error(await res.text());
@@ -119,7 +118,6 @@ export default function StructurePage() {
         }
     };
 
-// Отмена добавления подразделения
     const cancelAddSubDep = () => {
         setAddingSubDepFor(null);
         setNewSubDepData({ cod_dep: "", name: "", is_actual: 1, id_main: 0 });
@@ -127,9 +125,20 @@ export default function StructurePage() {
 
     const loadData = async () => {
         try {
-            const data = await fetch("/api/contacts/structure")
-                .then(res => res.json());
+            const res = await fetch("/api/contacts/structure", {
+                credentials: "include"
+            });
 
+            if (!res.ok) {
+                if (res.status === 401) {
+                    console.warn("Сессия истекла, требуется вход");
+                    window.location.href = "/login";
+                    return;
+                }
+                throw new Error(`HTTP ${res.status}`);
+            }
+
+            const data = await res.json();
             setRows(data);
         } catch (err) {
             console.error("Load structure error:", err);
@@ -181,7 +190,8 @@ export default function StructurePage() {
                     headers: {
                         "Content-Type": "application/json"
                     },
-                    body: JSON.stringify(editSubDepartmentData)
+                    body: JSON.stringify(editSubDepartmentData),
+                    credentials: "include"
                 }
             );
 
@@ -212,7 +222,7 @@ export default function StructurePage() {
             const res = await fetch(
                 `/api/contacts/structure/subdepartment/${id}`,
                 {
-                    method: "DELETE"
+                    method: "DELETE", credentials: "include"
                 }
             );
 
@@ -251,7 +261,8 @@ export default function StructurePage() {
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify(editDepartmentData)
+                body: JSON.stringify(editDepartmentData),
+                credentials: "include"
             });
 
             if (!response.ok) {
@@ -284,7 +295,7 @@ export default function StructurePage() {
             const res = await fetch(
                 `/api/contacts/structure/department/${id}`,
                 {
-                    method: "DELETE"
+                    method: "DELETE", credentials: "include"
                 }
             );
 
@@ -300,7 +311,6 @@ export default function StructurePage() {
         }
     };
 
-    // 1. Сначала группируем (без сортировки)
     const groupedRows = rows.reduce((acc: any, item) => {
         if (!acc[item.id]) {
             acc[item.id] = {
@@ -316,7 +326,6 @@ export default function StructurePage() {
         }
 
         if (item.sub_id) {
-            // Сортировка подразделений внутри отдела (можно сделать здесь или позже)
             acc[item.id].subDepartments.push({
                 id: item.sub_id,
                 cod_sub_dep: item.cod_sub_dep,
@@ -328,16 +337,13 @@ export default function StructurePage() {
         return acc;
     }, {} as Record<number, any>);
 
-// 2. Превращаем объект в массив для фильтрации и сортировки
     let displayGroups = Object.values(groupedRows);
 
-// 3. Фильтрация
     if (!showInactive) {
         displayGroups = displayGroups.filter((group: any) => {
             const dep = group.department;
             if (dep.is_actual !== 1) return false;
 
-            // Фильтруем подразделы внутри
             group.subDepartments = group.subDepartments.filter(
                 (sub: any) => sub.sub_actual === 1
             );
@@ -345,17 +351,14 @@ export default function StructurePage() {
         });
     }
 
-// 4. ФИНАЛЬНАЯ СОРТИРОВКА (Теперь сортируем массив объектов, а не сырые строки)
     displayGroups.sort((a: any, b: any) => {
-        // Сортировка отделов
-        // Добавляем trim() на случай пробелов в БД
         const codeA = (a.department.cod_dep || "").trim();
         const codeB = (b.department.cod_dep || "").trim();
 
         const depCompare = codeA.localeCompare(
             codeB,
             'uk',
-            { numeric: true, sensitivity: 'base' } // base игнорирует регистр
+            { numeric: true, sensitivity: 'base' }
         );
 
         if (depCompare !== 0) {
@@ -374,7 +377,8 @@ export default function StructurePage() {
     });
 
     return (
-        <div className="pt-16 px-6">
+    <AuthGuard>
+        <div className="pt-16 px-6 h-full flex flex-col">
 
             <div className="flex justify-between items-center mb-6">
 
@@ -402,7 +406,7 @@ export default function StructurePage() {
 
             </div>
 
-            {/* === ФОРМА ДОБАВЛЕНИЯ ОТДЕЛА === */}
+            {/* === Форма додавання відділу === */}
             {showAddDepartmentForm ? (
                 <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                     <h3 className="font-semibold mb-3">Додати новий відділ</h3>
@@ -417,7 +421,7 @@ export default function StructurePage() {
                                 placeholder="напр. 01"
                             />
                         </div>
-                        {/* Название */}
+                        {/* Назва */}
                         <div className="col-span-2">
                             <label className="block text-xs text-gray-600 mb-1">Назва</label>
                             <input
@@ -427,7 +431,7 @@ export default function StructurePage() {
                                 placeholder="Назва відділу"
                             />
                         </div>
-                        {/* Активный */}
+                        {/* Активний */}
                         <div className="flex items-center gap-2">
                             <input
                                 type="checkbox"
@@ -468,7 +472,7 @@ export default function StructurePage() {
                     </div>
                 </div>
             ) : (
-                /* Кнопка показа формы */
+                /* Показати форму */
                 <div className="mb-4">
                     <button
                         onClick={() => setShowAddDepartmentForm(true)}
@@ -483,7 +487,7 @@ export default function StructurePage() {
 
                 <table className="my-table">
 
-                    <thead className="bg-gray-100">
+                    <thead>
 
                     <tr>
 
@@ -525,7 +529,7 @@ export default function StructurePage() {
 
                                 {/* DEPARTMENT */}
 
-                                <tr className="bg-gray-200">
+                                <tr>
 
                                     {isEditing ? (
                                         <>
@@ -560,7 +564,7 @@ export default function StructurePage() {
 
                                             </td>
 
-                                            <td className=" text-center">
+                                            <td className =" text-center">
 
                                                 <input
                                                     type="checkbox"
@@ -590,7 +594,7 @@ export default function StructurePage() {
 
                                             </td>
 
-                                            <td className=" text-center">
+                                            <td className="text-center">
 
                                                 <button
                                                     onClick={() => saveDepartmentEdit(dep.id)}
@@ -663,7 +667,7 @@ export default function StructurePage() {
 
                                 </tr>
 
-                                {/* === ФОРМА ДОБАВЛЕНИЯ ПОДРАЗДЕЛЕНИЯ === */}
+                                {/* === Форма додавання підрозділу === */}
                                 {addingSubDepFor === dep.id && (
                                     <tr className="bg-green-50">
                                         <td className="">
@@ -863,6 +867,7 @@ export default function StructurePage() {
             </div>
 
         </div>
+        </AuthGuard>
     );
 }
 
